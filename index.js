@@ -4,6 +4,7 @@ const internalInput = process.argv
 const path = require('path');
 const fs = require('fs');
 const { log } = require('console');
+const { escape } = require('querystring');
 const [, , command, folderName, fileName, fileValue] = internalInput;
 // console.log( command, folderName, fileName, fileValue);
 
@@ -38,5 +39,45 @@ switch(command){
         
     break
     }   
-
+    case "readfile": {
+        const targetPath = path.join(__dirname, folderName, `${fileName}.txt`);
+        const isExitfile = fs.existsSync(targetPath);
+        if(isExitfile){
+          fs.readFile(targetPath, 'utf-8', (err, data)=>{
+            if(err){
+               return log('error from read file', err)
+            }else{
+                log(data)
+            }
+          })
+        }else{
+            log('no file exist in this directory')
+        }
+        break
+    }
+    case "deleteFolder": {
+        const targetPath = path.join(__dirname, folderName);
+        const isExitfile = fs.existsSync(targetPath);
+        if(isExitfile){
+            fs.rm(targetPath, {recursive: true, force: true}, (err)=>{
+                if(err){
+                    log(`failed to delete foder: ${targetPath}`, err)
+                }else{
+                    log(`folder deleted successfully: ${targetPath}`)
+                }
+            })
+        }
+        break
+    }
+    case "deleteFile" : {
+        const targetPath = path.join(__dirname, folderName, `${fileName}.txt`);
+        const isExitfile = fs.existsSync(targetPath);
+        if(!isExitfile){
+            return log('error from delete file')
+        }else{
+            fs.unlink(targetPath, (err)=>{
+                log('error from delete file', err)
+            })
+        }
+    }
 }
